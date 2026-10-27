@@ -1,0 +1,231 @@
+/* Agent Roll Call: tokens, keyframes and reduced-motion rules.
+   Imported from index.css so the @theme block below joins Tailwind's. */
+
+/* Ziki's light and dark tokens (design-handoff/HANDOFF.md). The rest of this
+   demo is dark only; the roll-call page follows the device theme. */
+.rc-theme {
+  --rc-ease: cubic-bezier(0.2, 0.7, 0.2, 1); /* Ziki's entrance curve, the only one used here */
+
+  --rc-bg: #f5f7fc;
+  --rc-surface: #ffffff;
+  --rc-text: #15121f;
+  --rc-text2: #3e4a63;
+  --rc-muted: #5f6577;
+  --rc-border: #e3e8f2;
+  --rc-divider: #eef1f7;
+  --rc-tint: #eaf2fe;
+  --rc-chip: #f0f2f7;
+  --rc-accent: #1f5fd9;
+  --rc-ok-bg: #e3f6ec;
+  --rc-ok-fg: #146c43;
+  --rc-warn-bg: #fdf3d7;
+  --rc-warn-fg: #7a4e00;
+  --rc-warn-bd: #f0cd72;
+  --rc-info-bg: #e7f0ff;
+  --rc-info-fg: #1d4fb8;
+  --rc-strong: #2e6fef; /* Electric Blue darkened so white text clears 4.5:1 */
+
+  background: var(--rc-bg);
+  color: var(--rc-text);
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  .rc-theme {
+    --rc-bg: #070f22;
+    --rc-surface: #0e1a33;
+    --rc-text: #e8eef9;
+    --rc-text2: #b7c3da;
+    --rc-muted: #93a0b8;
+    --rc-border: #22324f;
+    --rc-divider: #1a2844;
+    --rc-tint: #15284a;
+    --rc-chip: #1b2a47;
+    --rc-accent: #8fc9ff;
+    --rc-ok-bg: #0f3326;
+    --rc-ok-fg: #6ee7a8;
+    --rc-warn-bg: #3a2c0c;
+    --rc-warn-fg: #f6cf6b;
+    --rc-warn-bd: #6b5216;
+    --rc-info-bg: #14294f;
+    --rc-info-fg: #9cc2ff;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-rc-bg: var(--rc-bg);
+  --color-rc-surface: var(--rc-surface);
+  --color-rc-text: var(--rc-text);
+  --color-rc-text2: var(--rc-text2);
+  --color-rc-muted: var(--rc-muted);
+  --color-rc-border: var(--rc-border);
+  --color-rc-divider: var(--rc-divider);
+  --color-rc-tint: var(--rc-tint);
+  --color-rc-chip: var(--rc-chip);
+  --color-rc-accent: var(--rc-accent);
+  --color-rc-ok-bg: var(--rc-ok-bg);
+  --color-rc-ok-fg: var(--rc-ok-fg);
+  --color-rc-warn-bg: var(--rc-warn-bg);
+  --color-rc-warn-fg: var(--rc-warn-fg);
+  --color-rc-warn-bd: var(--rc-warn-bd);
+  --color-rc-info-bg: var(--rc-info-bg);
+  --color-rc-info-fg: var(--rc-info-fg);
+  --color-rc-strong: var(--rc-strong);
+}
+
+/* ---------- Motion ----------
+   The whole entrance is about 1.5s and nothing loops. Every keyframe moves
+   transform and opacity only.
+   0ms    card fades in and rises from scale(.96)   (240ms)
+   160ms+ each robot's line steps in, 60ms apart     (240ms each)
+   +200ms its arm waves once, or lifts and stays up  (900ms / 360ms) */
+
+@keyframes rc-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes rc-card-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+@keyframes rc-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Lift, swing twice, settle. */
+@keyframes rc-wave {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-80deg);
+  }
+  45% {
+    transform: rotate(-50deg);
+  }
+  65% {
+    transform: rotate(-80deg);
+  }
+  85% {
+    transform: rotate(-50deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes rc-raise {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-80deg);
+  }
+}
+
+.rc-card {
+  transform-origin: top center;
+  animation: rc-card-in 240ms var(--rc-ease) both;
+}
+
+.rc-card[data-leaving='true'] {
+  animation: rc-card-out 180ms var(--rc-ease) both;
+}
+
+.rc-row {
+  animation: rc-row-in 240ms var(--rc-ease) both;
+  animation-delay: var(--rc-row-delay, 0ms);
+}
+
+/* The arm turns about its shoulder, (28, 32) in the robot's 40x40 viewBox. */
+.rc-arm {
+  transform-box: view-box;
+  transform-origin: 28px 32px;
+}
+
+.rc-arm-wave {
+  animation: rc-wave 900ms var(--rc-ease) both;
+}
+
+/* Rests raised, so a reader with motion off still sees who needs them. */
+.rc-arm-raise {
+  transform: rotate(-80deg);
+  animation: rc-raise 360ms var(--rc-ease) both;
+}
+
+/* The switch knob slides with transform, not left. */
+.rc-knob {
+  transition: transform 160ms var(--rc-ease);
+}
+
+.rc-primary {
+  transition:
+    filter 120ms ease,
+    transform 120ms var(--rc-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rc-primary:hover {
+    filter: brightness(1.1);
+  }
+}
+
+.rc-primary:active {
+  transform: scale(0.97);
+}
+
+.rc-press {
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    transform 120ms var(--rc-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .rc-press:hover {
+    background-color: var(--rc-chip);
+  }
+}
+
+.rc-press:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Reduced motion ----------
+   Ziki's .zk-motion pattern: content stays, motion goes. The data-reduce
+   copy is the "Preview reduced motion" demo control. */
+@media (prefers-reduced-motion: reduce) {
+  .rc-motion,
+  .rc-motion * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.rc-motion[data-reduce='true'],
+.rc-motion[data-reduce='true'] * {
+  animation: none !important;
+  transition: none !important;
+}

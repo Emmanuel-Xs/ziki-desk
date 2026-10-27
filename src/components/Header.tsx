@@ -26,7 +26,7 @@ export function Header({ route, deskCount }: { route: string; deskCount: number 
         <span className="mx-1 hidden h-6 w-px bg-line md:block" />
         <button className="hidden items-center gap-1.5 text-[15px] md:flex">Zedu <ChevronDown size={15} className="text-muted" /></button>
         <nav className="ml-2 hidden items-center gap-1 lg:flex">
-          <a href="#/" className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-[15px] ${onDesk ? 'bg-card2 text-accent2' : 'text-soft hover:text-white'}`}>
+          <a href="#/desk" className={`flex items-center gap-2 rounded-full px-3.5 py-2 text-[15px] ${onDesk ? 'bg-card2 text-accent2' : 'text-soft hover:text-white'}`}>
             <Inbox size={16} /> Desk
             {deskCount > 0 && <span className="rounded-full bg-accent px-1.5 text-[11px] font-bold text-white">{deskCount}</span>}
           </a>
@@ -60,7 +60,8 @@ export function ProposalBar({ route }: { route: string }) {
     <div className="border-b border-line bg-[#0c1733] text-[13px]">
       <div className="mx-auto flex max-w-[1440px] flex-wrap items-center gap-2 px-4 py-2 md:px-8">
         <span className="text-muted">HNG15 proposal by 99plusOne:</span>
-        {link('#/', 'New: Decision Desk', route === 'desk')}
+        {link('#/roll-call', 'New: Agent Roll Call', route === 'roll-call')}
+        {link('#/desk', 'New: Decision Desk', route === 'desk')}
         {link('#/classic', 'Original dashboard', route === 'classic')}
         {link('#/issues', 'Original issue list', route === 'issues')}
         {link('#/issue/106', 'Original issue page', route === 'issue')}
