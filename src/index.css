@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+/* Tokens sampled from the live Ziki app screenshots. Same look, new flow. */
+@theme {
+  --color-ink: #070d1d;
+  --color-bg: #0a1226;
+  --color-card: #0f1830;
+  --color-card2: #142243;
+  --color-line: #1e2b4d;
+  --color-muted: #8d9abb;
+  --color-soft: #c3cce4;
+  --color-accent: #2f6bff;
+  --color-accent2: #6b9bff;
+  --color-gold: #f2c14e;
+  --color-goldbg: #3a2d0c;
+  --color-ok: #34d399;
+  --color-okbg: #0d3326;
+  --color-warn: #f5b84a;
+  --color-bad: #f87171;
+  --color-badbg: #3a1420;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+html { color-scheme: dark; }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: #e7ecfb;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible { outline: 2px solid var(--color-accent2); outline-offset: 2px; border-radius: 8px; }
+
+/* Card enter */
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.rise { animation: rise .28s ease-out both; }
+
+/* Countdown ring */
+.ring-track { stroke: var(--color-line); }
+.ring-bar { transition: stroke-dashoffset 1s linear; }
+
+/* ---------- Agent faces (Task 2 whimsy) ---------- */
+.face-eyes { transform-box: fill-box; transform-origin: center; animation: face-blink 5.5s infinite; }
+@keyframes face-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+
+.face-pupil { transition: transform .12s ease-out; }
+
+.face-z { animation: face-z 2.8s infinite ease-out; opacity: 0; }
+.face-z.b { animation-delay: 1.4s; }
+@keyframes face-z { 0% { opacity: 0; transform: translate(0, 0) scale(.8); } 30% { opacity: 1; } 100% { opacity: 0; transform: translate(5px, -9px) scale(1.1); } }
+
+.face-ping { transform-box: fill-box; transform-origin: center; animation: face-ping 1.8s infinite ease-out; }
+@keyframes face-ping { 0% { opacity: .7; transform: scale(1); } 100% { opacity: 0; transform: scale(1.45); } }
+
+.face-hop { animation: face-hop 2.4s infinite ease-in-out; }
+@keyframes face-hop { 0%, 70%, 100% { transform: translateY(0); } 80% { transform: translateY(-3px); } 90% { transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .face-eyes, .face-z, .face-ping, .face-hop { animation: none !important; }
+  .face-z { opacity: .8; }
+  .face-pupil, .ring-bar { transition: none; }
+}
