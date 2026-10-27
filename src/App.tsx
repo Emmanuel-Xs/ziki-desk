@@ -4,15 +4,13 @@ import { Desk } from './pages/Desk'
 import { Classic } from './pages/Classic'
 import { Issues } from './pages/Issues'
 import { IssuePage } from './pages/IssuePage'
-import { RollCallPage } from './rollcall/RollCallPage'
 
 const parse = () => {
   const h = window.location.hash.replace(/^#\/?/, '')
-  if (h.startsWith('desk')) return 'desk'
   if (h.startsWith('classic')) return 'classic'
   if (h.startsWith('issues')) return 'issues'
   if (h.startsWith('issue/')) return 'issue'
-  return 'roll-call'
+  return 'desk'
 }
 
 export default function App() {
@@ -29,7 +27,6 @@ export default function App() {
     <>
       <ProposalBar route={route} />
       <Header route={route} deskCount={count} />
-      {route === 'roll-call' && <RollCallPage />}
       {route === 'desk' && <Desk onCount={onCount} />}
       {route === 'classic' && <Classic />}
       {route === 'issues' && <Issues />}

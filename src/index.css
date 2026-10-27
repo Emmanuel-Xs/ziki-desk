@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "./rollcall/rollcall.css";
 
 /* Tokens sampled from the live Ziki app screenshots. Same look, new flow. */
 @theme {
