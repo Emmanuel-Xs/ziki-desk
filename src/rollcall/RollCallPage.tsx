@@ -40,7 +40,7 @@ function RollCallSetting({ enabled, onChange }: { enabled: boolean; onChange: (n
             onChange(!enabled)
             setMessage(enabled ? 'Agent roll call turned off.' : 'Agent roll call turned on.')
           }}
-          className={`rc-track relative h-7 w-[46px] shrink-0 rounded-full border-0 p-0 ${enabled ? 'bg-rc-strong' : 'bg-rc-chip'}`}
+          className={`relative h-7 w-[46px] shrink-0 rounded-full border-0 p-0 ${enabled ? 'bg-rc-strong' : 'bg-rc-chip'}`}
         >
           <span
             className="rc-knob pointer-events-none absolute left-[3px] top-[3px] h-[22px] w-[22px] rounded-full bg-white shadow-[0_1px_3px_rgba(0,0,0,0.25)]"
@@ -108,7 +108,6 @@ export function RollCallPage() {
                 <RollCall
                   key={rc.visit}
                   rows={rows}
-                  returnId={rc.saved.returnAt}
                   awayLabel={formatAway(rc.awayMs)}
                   points={POINTS_EARNED}
                   reduceMotion={reduce}

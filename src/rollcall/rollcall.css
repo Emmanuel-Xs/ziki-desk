@@ -79,7 +79,7 @@
    transform and opacity only.
    0ms    card fades in and rises from scale(.96)   (240ms)
    160ms+ each robot's line steps in, 60ms apart     (240ms each)
-   +200ms its arm waves once, or lifts and stays up  (900ms / 300ms) */
+   +200ms its arm waves once, or lifts and stays up  (900ms / 360ms) */
 
 @keyframes rc-card-in {
   from {
@@ -99,7 +99,7 @@
   }
   to {
     opacity: 0;
-    transform: translateY(8px) scale(0.96);
+    transform: translateY(-8px) scale(0.98);
   }
 }
 
@@ -172,24 +172,12 @@
 /* Rests raised, so a reader with motion off still sees who needs them. */
 .rc-arm-raise {
   transform: rotate(-80deg);
-  animation: rc-raise 300ms var(--rc-ease) both;
+  animation: rc-raise 360ms var(--rc-ease) both;
 }
 
-/* The same card shown again for one return (after following "Answer"): no
-   entrance. The exit still plays, and a raised arm keeps its pose. */
-.rc-card[data-still='true']:not([data-leaving='true']),
-.rc-card[data-still='true'] .rc-row,
-.rc-arm-still {
-  animation: none;
-}
-
-/* The switch knob slides with transform, not left; the track changes colour with it. */
+/* The switch knob slides with transform, not left. */
 .rc-knob {
   transition: transform 160ms var(--rc-ease);
-}
-
-.rc-track {
-  transition: background-color 160ms var(--rc-ease);
 }
 
 .rc-primary {

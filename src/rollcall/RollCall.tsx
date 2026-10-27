@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { AgentRobot, type Gesture } from './AgentRobot'
 import type { RollRow } from './summarize'
 
@@ -7,14 +7,8 @@ const ROW_START = 160
 const ROW_STAGGER = 60
 const GESTURE_AFTER_ROW = 200
 const LEAVE_MS = 180
-const WAVE_MS = 900
-const RAISE_MS = 300
 
 type Leaving = 'gotit' | 'disable'
-
-// Returns whose entrance has already played. A card that mounts again for the
-// same return (say, after following "Answer") shows still: once per return.
-const entrancePlayed = new Set<number>()
 
 const gestureFor = (row: RollRow): Gesture | undefined =>
   row.tier === 'needs' ? 'raise' : row.tier === 'did' ? 'wave' : undefined
@@ -26,7 +20,6 @@ const gestureFor = (row: RollRow): Gesture | undefined =>
  */
 export function RollCall({
   rows,
-  returnId,
   awayLabel,
   points,
   reduceMotion,
@@ -35,8 +28,6 @@ export function RollCall({
   onDisable,
 }: {
   rows: RollRow[]
-  /** Identifies this return, so the entrance plays once per return. */
-  returnId: number
   awayLabel: string
   points: number
   /** The demo's "Preview reduced motion" control. The OS setting is read directly. */
@@ -48,13 +39,6 @@ export function RollCall({
   const [leaving, setLeaving] = useState<Leaving | null>(null)
   // Hover, focus or tap on a robot replays its gesture: delight the user asked for.
   const [replays, setReplays] = useState<Record<string, number>>({})
-  const [still] = useState(() => entrancePlayed.has(returnId))
-  const [mountedAt] = useState(() => performance.now())
-  const busyUntil = useRef<Record<string, number>>({})
-
-  useEffect(() => {
-    entrancePlayed.add(returnId)
-  }, [returnId])
 
   const act = (what: Leaving) => (what === 'gotit' ? onGotIt() : onDisable())
 
@@ -68,25 +52,17 @@ export function RollCall({
 
   const leave = (what: Leaving) => {
     if (leaving) return
-    const reduced = reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduced) act(what)
+    const still = reduceMotion || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (still) act(what)
     else setLeaving(what)
   }
 
-  // A gesture that is still playing is left alone: restarting it would snap the
-  // arm back to rest. `firstEnds` is when the entrance's own gesture finishes.
-  const replay = (id: string, firstEnds: number, ms: number) => {
-    const now = performance.now()
-    if (now < (busyUntil.current[id] ?? (still ? 0 : mountedAt + firstEnds))) return
-    busyUntil.current[id] = now + ms
-    setReplays((r) => ({ ...r, [id]: (r[id] ?? 0) + 1 }))
-  }
+  const replay = (id: string) => setReplays((r) => ({ ...r, [id]: (r[id] ?? 0) + 1 }))
 
   return (
     <section
       className="rc-card rounded-[20px] border border-rc-border bg-rc-surface p-4 sm:p-6"
       data-leaving={leaving ? 'true' : undefined}
-      data-still={still ? 'true' : undefined}
       aria-labelledby="roll-call-title"
     >
       <div className="flex items-start justify-between gap-4">
@@ -107,16 +83,12 @@ export function RollCall({
           const rowDelay = ROW_START + i * ROW_STAGGER
           const gesture = gestureFor(row)
           const again = replays[row.id] ?? 0
-          const gestureMs = gesture === 'raise' ? RAISE_MS : WAVE_MS
-          const firstEnds = rowDelay + GESTURE_AFTER_ROW + gestureMs
-          const play = () => replay(row.id, firstEnds, gestureMs)
           const robot = (
             <AgentRobot
               name={row.agent.name}
               status={row.agent.status}
               size={44}
               gesture={gesture}
-              still={still && !again}
               delay={again ? 0 : rowDelay + GESTURE_AFTER_ROW}
               replayKey={again}
             />
@@ -131,9 +103,9 @@ export function RollCall({
                 <button
                   type="button"
                   aria-label={`${row.names}: ${gesture === 'raise' ? 'raise hand' : 'wave'} again`}
-                  onPointerEnter={(e) => e.pointerType === 'mouse' && play()}
-                  onPointerDown={(e) => e.pointerType !== 'mouse' && play()}
-                  onFocus={(e) => e.currentTarget.matches(':focus-visible') && play()}
+                  onPointerEnter={(e) => e.pointerType === 'mouse' && replay(row.id)}
+                  onPointerDown={(e) => e.pointerType !== 'mouse' && replay(row.id)}
+                  onFocus={(e) => e.currentTarget.matches(':focus-visible') && replay(row.id)}
                   className="h-11 w-11 shrink-0 cursor-default rounded-xl border-0 bg-transparent p-0"
                 >
                   {robot}

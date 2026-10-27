@@ -26,9 +26,7 @@ export type Gesture = 'wave' | 'raise'
  *
  * `gesture` adds an arm. "wave" lifts it, swings it and lowers it once ("I did
  * work and I'm done"). "raise" lifts it and keeps it up ("I need you"). The
- * motion itself lives in rollcall.css; without it the raised arm still shows.
- * `still` skips the gesture and shows the resting pose (a raised arm stays raised).
- * `delay` (ms) holds the gesture back until the robot's line has appeared, and
+ * motion itself lives in rollcall.css; without it the raised arm still shows. * `delay` (ms) holds the gesture back until the robot's line has appeared, and
  * `replayKey` restarts it.
  *
  * Ziki's working light pulses forever. The roll call has no loops, so the pulse
@@ -39,7 +37,6 @@ export function AgentRobot({
   status,
   size = 40,
   gesture,
-  still = false,
   delay = 0,
   replayKey = 0,
   pulse = false,
@@ -48,7 +45,6 @@ export function AgentRobot({
   status: AgentStatus
   size?: number
   gesture?: Gesture
-  still?: boolean
   delay?: number
   replayKey?: number
   pulse?: boolean
@@ -73,7 +69,7 @@ export function AgentRobot({
       <rect x="13" y="30" width="14" height="6" rx="3" fill={body} opacity="0.75" />
       {/* arm: hangs from the right shoulder (28, 32) and turns about it; rollcall.css sets the pivot */}
       {gesture ? (
-        <g key={replayKey} className={`rc-arm rc-arm-${gesture}${still ? ' rc-arm-still' : ''}`} style={{ animationDelay: `${delay}ms` }}>
+        <g key={replayKey} className={`rc-arm rc-arm-${gesture}`} style={{ animationDelay: `${delay}ms` }}>
           <line x1="28" y1="32" x2="34" y2="35.4" stroke={body} strokeWidth="2.6" strokeLinecap="round" />
           <circle cx="34" cy="35.4" r="2.1" fill={body} />
         </g>
