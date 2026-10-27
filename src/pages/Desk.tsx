@@ -37,6 +37,7 @@ export function Desk({ onCount }: { onCount: (n: number) => void }) {
   const [ruleFrom, setRuleFrom] = useState<Live | null>(null)
   const [toast, setToast] = useState('')
   const [repaired, setRepaired] = useState(false)
+  const [flashId, setFlashId] = useState('')
 
   // Offers expire for real, which is the whole problem.
   useEffect(() => {
@@ -85,6 +86,7 @@ export function Desk({ onCount }: { onCount: (n: number) => void }) {
   const reset = () => { setItems(fresh()); setRules(RULES); setHandled(HANDLED); setRepaired(false); setToast('Demo reset.') }
 
   const waitingOn = new Set(open.map((d) => d.agentId))
+  useEffect(() => { if (!flashId) return; const t = setTimeout(() => setFlashId(''), 1600); return () => clearTimeout(t) }, [flashId])
   const mood = (a: Agent): FaceMood => {
     if (a.status === 'offline' && !(a.id === 'a5' && repaired)) return 'asleep'
     if (open.length === 0) return 'content'
@@ -101,6 +103,15 @@ export function Desk({ onCount }: { onCount: (n: number) => void }) {
     const kb = b.expired ? 2 : b.expiresAt ? 0 : 1
     return ka - kb || (a.expiresAt ?? 0) - (b.expiresAt ?? 0)
   }), [items])
+
+  // Tapping an agent takes you to the question it is waiting on.
+  const goTo = (a: Agent) => {
+    const d = sorted.find((x) => !x.expired && x.agentId === a.id)
+    if (!d) { setToast(`${a.name}: ${activity(a)}`); return }
+    const calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    document.getElementById(`decision-${d.id}`)?.scrollIntoView({ behavior: calm ? 'auto' : 'smooth', block: 'center' })
+    setFlashId(d.id)
+  }
 
   return (
     <main className="mx-auto max-w-[1440px] px-4 py-8 md:px-8">
@@ -142,13 +153,18 @@ export function Desk({ onCount }: { onCount: (n: number) => void }) {
           {AGENTS.map((a) => {
             const m = mood(a)
             return (
-              <li key={a.id} className={`flex items-center gap-3 rounded-2xl p-3 ${m === 'waiting' ? 'bg-card2 ring-1 ring-warn/50' : 'bg-ink/40'}`}>
-                <AgentFace hue={a.hue} mood={m} label={`${a.name}: ${activity(a)}`} />
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold">{a.name}</p>
-                  <p className={`truncate text-xs ${m === 'asleep' ? 'text-muted' : 'text-soft'}`}>{activity(a)}</p>
-                  {waitingOn.has(a.id) && <p className="text-xs font-semibold text-warn">Asked you something</p>}
-                </div>
+              <li key={a.id}>
+                <button
+                  onClick={() => goTo(a)}
+                  className={`flex w-full items-center gap-3 rounded-2xl p-3 text-left transition-[filter] hover:brightness-125 active:brightness-150 ${m === 'waiting' ? 'bg-card2 ring-1 ring-warn/50' : 'bg-ink/40'}`}
+                >
+                  <AgentFace hue={a.hue} mood={m} label={`${a.name}: ${activity(a)}`} />
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold">{a.name}</p>
+                    <p className={`truncate text-xs ${m === 'asleep' ? 'text-muted' : 'text-soft'}`}>{activity(a)}</p>
+                    {waitingOn.has(a.id) && <p className="text-xs font-semibold text-warn">Asked you something</p>}
+                  </div>
+                </button>
               </li>
             )
           })}
@@ -166,7 +182,7 @@ export function Desk({ onCount }: { onCount: (n: number) => void }) {
             </div>
           )}
           {sorted.map((d) => (
-            <Card key={d.id} d={d} now={now} onAnswer={answer} onAlways={setRuleFrom} onDismiss={dismiss} />
+            <Card key={d.id} d={d} now={now} flash={flashId === d.id} onAnswer={answer} onAlways={setRuleFrom} onDismiss={dismiss} />
           ))}
         </section>
 
@@ -242,8 +258,8 @@ function Countdown({ left, total }: { left: number; total: number }) {
   )
 }
 
-function Card({ d, now, onAnswer, onAlways, onDismiss }: {
-  d: Live; now: number
+function Card({ d, now, flash, onAnswer, onAlways, onDismiss }: {
+  d: Live; now: number; flash: boolean
   onAnswer: (d: Live, yes: boolean) => void
   onAlways: (d: Live) => void
   onDismiss: (d: Live) => void
@@ -254,7 +270,7 @@ function Card({ d, now, onAnswer, onAlways, onDismiss }: {
 
   if (d.expired) {
     return (
-      <article className="rise rounded-3xl border border-bad/40 bg-badbg/40 p-5">
+      <article id={`decision-${d.id}`} className="rise scroll-mt-24 rounded-3xl border border-bad/40 bg-badbg/40 p-5">
         <p className="text-sm font-semibold text-bad">Missed · #{d.issue.number} {d.issue.title}</p>
         <p className="mt-2 text-lg font-semibold">Too late. Ziki gave this to the next person.</p>
         <p className="mt-1 text-soft">Offers last 60 seconds. {a.name} was ready, but it had to wait for you. A rule lets it say yes on your behalf next time.</p>
@@ -267,7 +283,7 @@ function Card({ d, now, onAnswer, onAlways, onDismiss }: {
   }
 
   return (
-    <article className="rise rounded-3xl border border-line bg-card p-5">
+    <article id={`decision-${d.id}`} className={`rise scroll-mt-24 rounded-3xl border bg-card p-5 ${flash ? 'flash border-accent2' : 'border-line'}`}>
       <header className="flex flex-wrap items-center gap-3">
         <AgentFace hue={a.hue} mood="waiting" size={34} label={a.name} />
         <div className="min-w-0 flex-1">
